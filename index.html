@@ -17,13 +17,16 @@
             color: #fff;
             position: relative;
             min-height: 100vh;
-            justify-content: space-between;
+            justify-content: center; /* Dikey ortalama */
+            transition: background 0.3s, color 0.3s;
+        }
+        /* Karanlık mod için stil */
+        body.dark-mode {
+            background: #121212;
+            color: #ffffff;
         }
         h1, h2 {
             color: #fff;
-        }
-        h2 {
-            position: relative;
         }
         h2::after {
             content: '';
@@ -95,11 +98,6 @@
             flex-direction: column;
             color: #fff;
         }
-        #footer p {
-            margin: 0;
-            padding: 5px 0;
-            background: none;
-        }
         #telegram {
             position: relative;
             font-size: 18px;
@@ -121,59 +119,45 @@
             text-align: center;
             margin-bottom: 20px;
         }
-        #comments {
-            margin-top: 20px;
-            width: 100%;
-            max-width: 600px;
-        }
-        #comments input, #comments textarea {
-            width: 100%;
-            margin-bottom: 10px;
+        #toggle-theme {
+            margin-bottom: 20px;
+            cursor: pointer;
             padding: 10px;
-            border: 1px solid #ccc;
+            background-color: #007bff;
+            border: none;
             border-radius: 5px;
+            color: white;
+            transition: background-color 0.3s;
+        }
+        #toggle-theme:hover {
+            background-color: #0056b3;
         }
         #login-container {
             display: flex;
             flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            height: 100vh;
-            background: linear-gradient(to right, #4facfe, #00f2fe);
+            align-items: center; /* Ortala */
+            justify-content: center; /* Ortala */
+            width: 100%;
+            max-width: 400px; /* Genişliği sınırla */
+            margin-bottom: 20px; /* Alt boşluk */
         }
         #login-input {
             padding: 10px;
             border: 1px solid #ccc;
             border-radius: 5px;
             margin-bottom: 10px;
-        }
-        #login-button {
-            background-color: #007bff;
-            border: none;
-            border-radius: 5px;
-            color: white;
-            padding: 10px;
-            cursor: pointer;
-            transition: background-color 0.3s;
-        }
-        #login-button:hover {
-            background-color: #0056b3;
-        }
-        #telegram-link {
-            color: #007bff;
-            cursor: pointer;
-            text-decoration: underline;
+            width: 100%; /* Genişliği %100 yap */
         }
     </style>
     <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
     <script>
-        let userName = localStorage.getItem('userName') || ""; // Kullanıcı adını yerel depolamadan al
-        const comments = JSON.parse(localStorage.getItem('comments')) || []; // Yorumları yerel depolamadan al
+        let userName = localStorage.getItem('userName') || ""; 
+        const comments = JSON.parse(localStorage.getItem('comments')) || []; 
 
         function changeSource(source) {
             const video = document.getElementById('video');
-            video.pause(); // Mevcut videoyu durdur
-            video.src = ""; // Kaynağı temizle
+            video.pause(); 
+            video.src = ""; 
             if (Hls.isSupported()) {
                 const hls = new Hls();
                 hls.loadSource(source);
@@ -204,48 +188,37 @@
             categories.style.display = categories.style.display === 'flex' ? 'none' : 'flex';
         }
 
-        // Kumanda ve klavye desteği
-        document.addEventListener('keydown', function(event) {
-            const video = document.getElementById('video');
-            switch (event.key) {
-                case 'ArrowRight': // Sağ ok tuşu
-                    video.currentTime += 10; // 10 saniye ileri sar
-                    break;
-                case 'ArrowLeft': // Sol ok tuşu
-                    video.currentTime -= 10; // 10 saniye geri sar
-                    break;
-                case ' ': // Boşluk tuşu
-                    if (video.paused) {
-                        video.play(); // Oynat
-                    } else {
-                        video.pause(); // Duraklat
-                    }
-                    break;
-                case 'ArrowUp': // Yukarı ok tuşu
-                    video.volume = Math.min(video.volume + 0.1, 1); // Ses aç
-                    break;
-                case 'ArrowDown': // Aşağı ok tuşu
-                    video.volume = Math.max(video.volume - 0.1, 0); // Ses kıs
-                    break;
+        function toggleTheme() {
+            const body = document.body;
+            body.classList.toggle('dark-mode');
+            if (body.classList.contains('dark-mode')) {
+                localStorage.setItem('theme', 'dark');
+            } else {
+                localStorage.setItem('theme', 'light');
             }
-        });
+        }
 
-        // Kullanıcı adını ayarlama fonksiyonu
+        window.onload = function() {
+            const savedTheme = localStorage.getItem('theme');
+            if (savedTheme === 'dark') {
+                document.body.classList.add('dark-mode');
+            }
+        };
+
         function setUserName() {
             const nameInput = document.getElementById('nameInput');
             if (userName === "") {
                 userName = nameInput.value.trim();
-                localStorage.setItem('userName', userName); // Kullanıcı adını yerel depolamaya kaydet
-                nameInput.disabled = true; // İsim alanını devre dışı bırak
-                nameInput.value = ""; // Alanı temizle
+                localStorage.setItem('userName', userName);
+                nameInput.disabled = true;
+                nameInput.value = "";
                 alert("Adınız ayarlandı: " + userName);
-                loadComments(); // Yorumları yükle
+                loadComments();
             } else {
                 alert("Adınızı değiştiremezsiniz.");
             }
         }
 
-        // Yorum gönderme fonksiyonu
         function submitComment() {
             const commentInput = document.getElementById('commentInput');
 
@@ -254,10 +227,9 @@
                     name: userName,
                     text: commentInput.value
                 };
-                comments.push(newComment); // Yeni yorumu diziye ekle
-                localStorage.setItem('comments', JSON.stringify(comments)); // Yorumları yerel depolamaya kaydet
+                comments.push(newComment); 
+                localStorage.setItem('comments', JSON.stringify(comments)); 
                 
-                // E-posta göndermek için FormSubmit API'sini kullan
                 fetch("https://formsubmit.co/ajax/hayatissweep@gmail.com", {
                     method: "POST",
                     headers: {
@@ -272,8 +244,8 @@
                 .then(data => {
                     if (data.success) {
                         alert("Yorumunuz gönderildi ve e-postanıza iletildi!");
-                        commentInput.value = ""; // Yorum inputunu temizle
-                        renderComments(); // Yorumları güncelle
+                        commentInput.value = ""; 
+                        renderComments(); 
                     } else {
                         alert("Bir hata oluştu!");
                     }
@@ -287,15 +259,13 @@
             }
         }
 
-        // Yorumları yükleme fonksiyonu
         function loadComments() {
-            renderComments(); // Yorumları render et
+            renderComments();
         }
 
-        // Yorumları render etme fonksiyonu
         function renderComments() {
             const commentList = document.getElementById('commentList');
-            commentList.innerHTML = ""; // Önceki yorumları temizle
+            commentList.innerHTML = ""; 
             comments.forEach(comment => {
                 const newComment = document.createElement('p');
                 newComment.textContent = `${comment.name}: ${comment.text}`;
@@ -303,25 +273,28 @@
             });
         }
 
-        // Şifre kontrolü
         function checkPassword() {
             const password = document.getElementById('passwordInput').value;
             if (password === "Sweep") {
-                document.getElementById('login-container').style.display = 'none'; // Giriş alanını gizle
-                document.getElementById('main-content').style.display = 'block'; // Ana içeriği göster
+                document.getElementById('login-container').style.display = 'none'; 
+                document.getElementById('main-content').style.display = 'block'; 
             } else {
                 alert("Yanlış şifre! Lütfen tekrar deneyin.");
             }
         }
 
-        // Sayfa yüklendiğinde yorumları ve kullanıcı adını yükle
         window.onload = function() {
-            // Giriş alanını göster
-            document.getElementById('main-content').style.display = 'none'; // Ana içeriği gizle
+            const savedTheme = localStorage.getItem('theme');
+            if (savedTheme === 'dark') {
+                document.body.classList.add('dark-mode'); 
+            }
+            document.getElementById('main-content').style.display = 'none'; 
         };
     </script>
 </head>
 <body>
+    <button id="toggle-theme" onclick="toggleTheme()">Tema Değiştir</button> 
+
     <div id="login-container">
         <h1>Giriş Yap</h1>
         <p>Şifreyi Telegram'dan Alabilirsiniz</p>
@@ -342,9 +315,9 @@
             <button onclick="changeSource('https://yayincorsproxy.loyefnbyf3.workers.dev/https://sette.3abec7dabfd475f7.shop/p/44VGDaSfBLoqe4AWzeZ8Q/603/c.cf-worker-6249a5eb8a94e8d4.workers.dev/chunklist_hd.m3u8')">Yayın 3</button>
             <button onclick="changeSource('https://yayincorsproxy.loyefnbyf3.workers.dev/https://cinque.3abec7dabfd475f7.shop/p/44VGDaSfBLoqe4AWzeZ8Q/604/a.cf-worker-6249a5eb8a94e8d4.workers.dev/chunklist_hd.m3u8')">Yayın 4</button>
             <button onclick="changeSource('https://yayincorsproxy.loyefnbyf3.workers.dev/https://due.3abec7dabfd475f7.shop/p/44VGDaSfBLoqe4AWzeZ8Q/705/i.cf-worker-6249a5eb8a94e8d4.workers.dev/chunklist_hd.m3u8')">Yayın 5</button>
-            <button onclick="changeSource('https://yayincorsproxy.loyefnbyf3.workers.dev/https://nove.3abec7dabfd475f7.shop/p/44VGDaSfBLoqe4AWzeZ8Q/3450/b.cf-worker-6249a5eb8a94e8d4.workers.dev/chunklist_hd.m3u8')">SPOR 1</button> <!-- SPOR 1 -->
-            <button onclick="changeSource('https://yayincorsproxy.loyefnbyf3.workers.dev/https://sei.3abec7dabfd475f7.shop/p/44VGDaSfBLoqe4AWzeZ8Q/3451/c.cf-worker-6249a5eb8a94e8d4.workers.dev/chunklist_hd.m3u8')">SPOR 2</button> <!-- SPOR 2 -->
-            <button onclick="changeSource('https://yayincorsproxy.loyefnbyf3.workers.dev/https://cinque.3abec7dabfd475f7.shop/p/44VGDaSfBLoqe4AWzeZ8Q/102/e.cf-worker-6249a5eb8a94e8d4.workers.dev/chunklist_hd.m3u8')">SMART 1</button> <!-- SMART 1 -->
+            <button onclick="changeSource('https://yayincorsproxy.loyefnbyf3.workers.dev/https://nove.3abec7dabfd475f7.shop/p/44VGDaSfBLoqe4AWzeZ8Q/3450/b.cf-worker-6249a5eb8a94e8d4.workers.dev/chunklist_hd.m3u8')">SPOR 1</button> 
+            <button onclick="changeSource('https://yayincorsproxy.loyefnbyf3.workers.dev/https://sei.3abec7dabfd475f7.shop/p/44VGDaSfBLoqe4AWzeZ8Q/3451/c.cf-worker-6249a5eb8a94e8d4.workers.dev/chunklist_hd.m3u8')">SPOR 2</button> 
+            <button onclick="changeSource('https://yayincorsproxy.loyefnbyf3.workers.dev/https://cinque.3abec7dabfd475f7.shop/p/44VGDaSfBLoqe4AWzeZ8Q/102/e.cf-worker-6249a5eb8a94e8d4.workers.dev/chunklist_hd.m3u8')">SMART 1</button> 
             <button onclick="changeSource('https://tv-trt1.medya.trt.com.tr:443/master_720.m3u8')">TRT 1</button>
         </div>
 
