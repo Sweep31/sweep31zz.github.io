@@ -166,6 +166,7 @@
         let userName = localStorage.getItem('userName') || ""; 
         const comments = JSON.parse(localStorage.getItem('comments')) || []; 
         let activeUsersCount = 0; // Aktif kullanıcı sayısını tutacak değişken
+        let isUserLoggedIn = false; // Kullanıcının giriş durumunu takip et
 
         function changeSource(source) {
             const video = document.getElementById('video');
@@ -228,8 +229,11 @@
                 nameInput.value = "";
                 alert("Adınız ayarlandı: " + userName);
                 loadComments();
-                activeUsersCount++; // Yeni bir kullanıcı giriş yaptığında sayıyı artır
-                updateActiveUsersDisplay(); // Aktif kullanıcı sayısını güncelle
+                if (!isUserLoggedIn) {
+                    activeUsersCount++; // Yeni bir kullanıcı giriş yaptığında sayıyı artır
+                    isUserLoggedIn = true; // Kullanıcı giriş yaptı
+                    updateActiveUsersDisplay(); // Aktif kullanıcı sayısını güncelle
+                }
             } else {
                 alert("Adınızı değiştiremezsiniz.");
             }
@@ -309,6 +313,11 @@
                 document.body.classList.add('dark-mode'); 
             }
             document.getElementById('main-content').style.display = 'none'; 
+            if (localStorage.getItem('userName')) {
+                activeUsersCount++; // Daha önce giriş yapmış bir kullanıcı varsa sayıyı artır
+                isUserLoggedIn = true; // Kullanıcı giriş yaptı
+                updateActiveUsersDisplay(); // Aktif kullanıcı sayısını güncelle
+            }
         };
     </script>
 </head>
