@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sweep TV</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            background: linear-gradient(to right, #4facfe, #00f2fe);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: #fff;
+            position: relative;
+            min-height: 100vh;
+            justify-content: space-between;
+        }
+        h1, h2 {
+            color: #fff;
+        }
+        h2 {
+            position: relative;
+        }
+        h2::after {
+            content: '';
+            display: block;
+            width: 100%;
+            height: 4px;
+            background-color: black;
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+        }
+        #videoPlayer {
+            margin-top: 20px;
+            width: 100%;
+            max-width: 600px;
+            border: 2px solid #ccc;
+            border-radius: 8px;
+            overflow: hidden;
+            background-color: #000;
+        }
+        video {
+            width: 100%;
+            height: auto;
+        }
+        #categoryButton {
+            background-color: transparent;
+            border: none;
+            color: #007bff;
+            font-size: 20px;
+            cursor: pointer;
+            text-align: left;
+            width: 100%;
+            padding: 10px;
+            transition: background-color 0.3s, color 0.3s;
+        }
+        #categoryButton:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+            color: #fff;
+        }
+        .category-list {
+            display: none;
+            flex-direction: column;
+            align-items: flex-start;
+            width: 100%;
+            margin-top: 10px;
+        }
+        .category-list button {
+            background-color: #007bff;
+            border: none;
+            border-radius: 5px;
+            color: white;
+            padding: 10px;
+            margin-bottom: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.3s;
+            width: 100%;
+        }
+        .category-list button:hover {
+            background-color: #0056b3;
+            transform: scale(1.05);
+        }
+        #footer {
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-top: 20px;
+            width: 100%;
+            flex-direction: column;
+            color: #fff;
+        }
+        #footer p {
+            margin: 0;
+            padding: 5px 0;
+            background: none;
+        }
+        #telegram {
+            position: relative;
+            font-size: 18px;
+            color: blue;
+            text-shadow: 1px 1px 0px yellow;
+            display: flex;
+            align-items: center;
+            margin-bottom: 5px;
+            cursor: pointer;
+        }
+        #telegram img {
+            width: 24px;
+            height: 24px;
+            margin-right: 5px;
+        }
+        #clickPrompt {
+            font-size: 16px;
+            color: white;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        #comments {
+            margin-top: 20px;
+            width: 100%;
+            max-width: 600px;
+        }
+        #comments input, #comments textarea {
+            width: 100%;
+            margin-bottom: 10px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        #login-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            background: linear-gradient(to right, #4facfe, #00f2fe);
+        }
+        #login-input {
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            margin-bottom: 10px;
+        }
+        #login-button {
+            background-color: #007bff;
+            border: none;
+            border-radius: 5px;
+            color: white;
+            padding: 10px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        #login-button:hover {
+            background-color: #0056b3;
+        }
+        #telegram-link {
+            color: #007bff;
+            cursor: pointer;
+            text-decoration: underline;
+        }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+    <script>
+        let userName = localStorage.getItem('userName') || ""; // Kullanıcı adını yerel depolamadan al
+        const comments = JSON.parse(localStorage.getItem('comments')) || []; // Yorumları yerel depolamadan al
+
+        function changeSource(source) {
+            const video = document.getElementById('video');
+            video.pause(); // Mevcut videoyu durdur
+            video.src = ""; // Kaynağı temizle
+            if (Hls.isSupported()) {
+                const hls = new Hls();
+                hls.loadSource(source);
+                hls.attachMedia(video);
+                hls.on(Hls.Events.MANIFEST_PARSED, function () {
+                    video.play();
+                });
+            } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+                video.src = source;
+                video.addEventListener('loadedmetadata', function () {
+                    video.play();
+                });
+            } else {
+                alert("Tarayıcınız HLS desteği sunmuyor. Lütfen başka bir tarayıcı deneyin.");
+            }
+        }
+
+        document.addEventListener('contextmenu', function (e) {
+            e.preventDefault();
+        });
+
+        document.addEventListener('selectstart', function (e) {
+            e.preventDefault();
+        });
+
+        function toggleCategories() {
+            const categories = document.getElementById('categories');
+            categories.style.display = categories.style.display === 'flex' ? 'none' : 'flex';
+        }
+
+        // Kumanda ve klavye desteği
+        document.addEventListener('keydown', function(event) {
+            const video = document.getElementById('video');
+            switch (event.key) {
+                case 'ArrowRight': // Sağ ok tuşu
+                    video.currentTime += 10; // 10 saniye ileri sar
+                    break;
+                case 'ArrowLeft': // Sol ok tuşu
+                    video.currentTime -= 10; // 10 saniye geri sar
+                    break;
+                case ' ': // Boşluk tuşu
+                    if (video.paused) {
+                        video.play(); // Oynat
+                    } else {
+                        video.pause(); // Duraklat
+                    }
+                    break;
+                case 'ArrowUp': // Yukarı ok tuşu
+                    video.volume = Math.min(video.volume + 0.1, 1); // Ses aç
+                    break;
+                case 'ArrowDown': // Aşağı ok tuşu
+                    video.volume = Math.max(video.volume - 0.1, 0); // Ses kıs
+                    break;
+            }
+        });
+
+        // Kullanıcı adını ayarlama fonksiyonu
+        function setUserName() {
+            const nameInput = document.getElementById('nameInput');
+            if (userName === "") {
+                userName = nameInput.value.trim();
+                localStorage.setItem('userName', userName); // Kullanıcı adını yerel depolamaya kaydet
+                nameInput.disabled = true; // İsim alanını devre dışı bırak
+                nameInput.value = ""; // Alanı temizle
+                alert("Adınız ayarlandı: " + userName);
+                loadComments(); // Yorumları yükle
+            } else {
+                alert("Adınızı değiştiremezsiniz.");
+            }
+        }
+
+        // Yorum gönderme fonksiyonu
+        function submitComment() {
+            const commentInput = document.getElementById('commentInput');
+
+            if (userName !== "" && commentInput.value.trim() !== "") {
+                const newComment = {
+                    name: userName,
+                    text: commentInput.value
+                };
+                comments.push(newComment); // Yeni yorumu diziye ekle
+                localStorage.setItem('comments', JSON.stringify(comments)); // Yorumları yerel depolamaya kaydet
+                
+                // E-posta göndermek için FormSubmit API'sini kullan
+                fetch("https://formsubmit.co/ajax/hayatissweep@gmail.com", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({
+                        name: userName,
+                        comment: commentInput.value
+                    }),
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert("Yorumunuz gönderildi ve e-postanıza iletildi!");
+                        commentInput.value = ""; // Yorum inputunu temizle
+                        renderComments(); // Yorumları güncelle
+                    } else {
+                        alert("Bir hata oluştu!");
+                    }
+                })
+                .catch(error => {
+                    console.error("Hata:", error);
+                    alert("Bir hata oluştu!");
+                });
+            } else {
+                alert("Lütfen adınızı ve yorumunuzu yazın.");
+            }
+        }
+
+        // Yorumları yükleme fonksiyonu
+        function loadComments() {
+            renderComments(); // Yorumları render et
+        }
+
+        // Yorumları render etme fonksiyonu
+        function renderComments() {
+            const commentList = document.getElementById('commentList');
+            commentList.innerHTML = ""; // Önceki yorumları temizle
+            comments.forEach(comment => {
+                const newComment = document.createElement('p');
+                newComment.textContent = `${comment.name}: ${comment.text}`;
+                commentList.appendChild(newComment);
+            });
+        }
+
+        // Şifre kontrolü
+        function checkPassword() {
+            const password = document.getElementById('passwordInput').value;
+            if (password === "Sweep") {
+                document.getElementById('login-container').style.display = 'none'; // Giriş alanını gizle
+                document.getElementById('main-content').style.display = 'block'; // Ana içeriği göster
+            } else {
+                alert("Yanlış şifre! Lütfen tekrar deneyin.");
+            }
+        }
+
+        // Sayfa yüklendiğinde yorumları ve kullanıcı adını yükle
+        window.onload = function() {
+            // Giriş alanını göster
+            document.getElementById('main-content').style.display = 'none'; // Ana içeriği gizle
+        };
+    </script>
+</head>
+<body>
+    <div id="login-container">
+        <h1>Giriş Yap</h1>
+        <p>Şifreyi Telegram'dan Alabilirsiniz</p>
+        <input type="password" id="passwordInput" placeholder="Şifreyi girin" />
+        <button id="login-button" onclick="checkPassword()">Giriş</button>
+        <p id="telegram-link" onclick="window.open('https://t.me/Sweep31z', '_blank');">Telegram Sweep31z</p>
+    </div>
+
+    <div id="main-content">
+        <h1>Sweep TV</h1>
+
+        <h2 onclick="toggleCategories()" style="cursor:pointer;">Kategoriler</h2>
+        <button id="categoryButton" onclick="toggleCategories()">Yayınları Görüntüle</button>
+        <div id="categories" class="category-list">
+            <button onclick="changeSource('https://yayincorsproxy.loyefnbyf3.workers.dev/https://otto.4f07aba470486024.shop/i/44VGDaSfBLoqe4AWzeZ8Q/601/playlist.m3u8')">Yayın 1</button>
+            <button onclick="changeSource('https://yayincorsproxy.loyefnbyf3.workers.dev/https://sei.3abec7dabfd475f7.shop/p/44VGDaSfBLoqe4AWzeZ8Q/602/i.cf-worker-6249a5eb8a94e8d4.workers.dev/chunklist_hd.m3u8')">Yayın 2</button>
+            <button onclick="changeSource('https://yayincorsproxy.loyefnbyf3.workers.dev/https://sette.3abec7dabfd475f7.shop/p/44VGDaSfBLoqe4AWzeZ8Q/603/c.cf-worker-6249a5eb8a94e8d4.workers.dev/chunklist_hd.m3u8')">Yayın 3</button>
+            <button onclick="changeSource('https://yayincorsproxy.loyefnbyf3.workers.dev/https://cinque.3abec7dabfd475f7.shop/p/44VGDaSfBLoqe4AWzeZ8Q/604/a.cf-worker-6249a5eb8a94e8d4.workers.dev/chunklist_hd.m3u8')">Yayın 4</button>
+            <button onclick="changeSource('https://yayincorsproxy.loyefnbyf3.workers.dev/https://due.3abec7dabfd475f7.shop/p/44VGDaSfBLoqe4AWzeZ8Q/705/i.cf-worker-6249a5eb8a94e8d4.workers.dev/chunklist_hd.m3u8')">Yayın 5</button>
+            <button onclick="changeSource('https://yayincorsproxy.loyefnbyf3.workers.dev/https://nove.3abec7dabfd475f7.shop/p/44VGDaSfBLoqe4AWzeZ8Q/3450/b.cf-worker-6249a5eb8a94e8d4.workers.dev/chunklist_hd.m3u8')">SPOR 1</button> <!-- SPOR 1 -->
+            <button onclick="changeSource('https://yayincorsproxy.loyefnbyf3.workers.dev/https://sei.3abec7dabfd475f7.shop/p/44VGDaSfBLoqe4AWzeZ8Q/3451/c.cf-worker-6249a5eb8a94e8d4.workers.dev/chunklist_hd.m3u8')">SPOR 2</button> <!-- SPOR 2 -->
+            <button onclick="changeSource('https://yayincorsproxy.loyefnbyf3.workers.dev/https://cinque.3abec7dabfd475f7.shop/p/44VGDaSfBLoqe4AWzeZ8Q/102/e.cf-worker-6249a5eb8a94e8d4.workers.dev/chunklist_hd.m3u8')">SMART 1</button> <!-- SMART 1 -->
+            <button onclick="changeSource('https://tv-trt1.medya.trt.com.tr:443/master_720.m3u8')">TRT 1</button>
+        </div>
+
+        <h2>Seçilen Yayın</h2>
+        <div id="videoPlayer">
+            <video id="video" controls>
+                Tarayıcınız video etiketini desteklemiyor.
+            </video>
+        </div>
+
+        <div id="comments">
+            <h3>Kullanıcı Adı:</h3>
+            <input type="text" id="nameInput" placeholder="Adınızı girin" />
+            <button onclick="setUserName()">Adı Ayarla</button>
+            <h3>Yorumlar:</h3>
+            <textarea id="commentInput" placeholder="Yorumunuzu buraya yazın..."></textarea>
+            <button onclick="submitComment()">Yorum Gönder</button>
+            <div id="commentList"></div>
+        </div>
+
+        <div id="footer">
+            <p>Bu yayınları Sweep Oluşturdu</p>
+            <p>Streamradar.co</p>
+        </div>
+
+        <div id="telegram" onclick="window.open('https://t.me/Sweep31z', '_blank');">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/8/83/Telegram_logo.svg" alt="Telegram Logo"> 
+            Telegram Sweep31z
+        </div>
+        <div id="clickPrompt">👆👆 Tıkla 👆👆</div>
+    </div>
+</body>
+                                                            </html>
