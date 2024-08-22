@@ -148,11 +148,24 @@
             margin-bottom: 10px;
             width: 100%; /* Genişliği %100 yap */
         }
+        /* Aktif kullanıcı sayısını göstermek için stil */
+        #activeUsers {
+            position: fixed;
+            bottom: 20px; /* Sayfanın altından 20px */
+            right: 20px; /* Sayfanın sağından 20px */
+            background-color: rgba(0, 0, 0, 0.7); /* Yarı saydam arka plan */
+            color: #fff;
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-size: 14px;
+            z-index: 1000; /* Diğer içeriklerin üstünde görünmesi için */
+        }
     </style>
     <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
     <script>
         let userName = localStorage.getItem('userName') || ""; 
         const comments = JSON.parse(localStorage.getItem('comments')) || []; 
+        let activeUsersCount = 0; // Aktif kullanıcı sayısını tutacak değişken
 
         function changeSource(source) {
             const video = document.getElementById('video');
@@ -203,6 +216,7 @@
             if (savedTheme === 'dark') {
                 document.body.classList.add('dark-mode');
             }
+            updateActiveUsersDisplay(); // Sayfa yüklendiğinde aktif kullanıcı sayısını güncelle
         };
 
         function setUserName() {
@@ -214,9 +228,15 @@
                 nameInput.value = "";
                 alert("Adınız ayarlandı: " + userName);
                 loadComments();
+                activeUsersCount++; // Yeni bir kullanıcı giriş yaptığında sayıyı artır
+                updateActiveUsersDisplay(); // Aktif kullanıcı sayısını güncelle
             } else {
                 alert("Adınızı değiştiremezsiniz.");
             }
+        }
+
+        function updateActiveUsersDisplay() {
+            document.getElementById('activeUsers').textContent = `Aktif Kullanıcılar: ${activeUsersCount}`;
         }
 
         function submitComment() {
@@ -349,5 +369,8 @@
         </div>
         <div id="clickPrompt">👆👆 Tıkla 👆👆</div>
     </div>
+
+    <!-- Aktif kullanıcı sayısını göstermek için alan -->
+    <div id="activeUsers">Aktif Kullanıcılar: 0</div>
 </body>
 </html>
