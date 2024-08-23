@@ -204,18 +204,7 @@
             if (savedTheme === 'dark') {
                 document.body.classList.add('dark-mode');
             }
-            // Kullanıcı sayısını güncelle
-            updateUserCount();
-            setInterval(updateUserCount, 5000); // Her 5 saniyede bir güncelle
         };
-
-        function updateUserCount() {
-            fetch('counter.php')
-                .then(response => response.text())
-                .then(data => {
-                    document.getElementById('userCount').innerText = data;
-                });
-        }
 
         function setUserName() {
             const nameInput = document.getElementById('nameInput');
@@ -318,9 +307,6 @@
 
     <div id="main-content">
         <h1>Sweep TV</h1>
-        
-        <!-- Kullanıcı sayısını göster -->
-        <h2>Aktif Kullanıcı Sayısı: <span id="userCount">0</span></h2>
 
         <h2 onclick="toggleCategories()" style="cursor:pointer;">Kategoriler</h2>
         <button id="categoryButton" onclick="toggleCategories()">Yayınları Görüntüle</button>
