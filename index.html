@@ -1,365 +1,147 @@
+
 <!DOCTYPE html>
 <html lang="tr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sweep TV</title>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <title>Borç Takip Sistemi</title>
     <style>
         body {
-            font-family: 'Roboto', sans-serif;
-            background: linear-gradient(to right, #4facfe, #00f2fe);
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f5f5f5;
             margin: 0;
+        }
+
+        #app {
+            background: white;
             padding: 20px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            color: #fff;
-            position: relative;
-            min-height: 100vh;
-            justify-content: center;
-            transition: background 0.3s, color 0.3s;
-        }
-        body.dark-mode {
-            background: #121212;
-            color: #ffffff;
-        }
-        h1, h2 {
-            color: #fff;
-        }
-        h2::after {
-            content: '';
-            display: block;
-            width: 100%;
-            height: 4px;
-            background-color: black;
-            position: absolute;
-            bottom: -5px;
-            left: 0;
-        }
-        #videoPlayer {
-            margin-top: 20px;
-            width: 100%;
-            max-width: 600px;
-            border: 2px solid #ccc;
             border-radius: 8px;
-            overflow: hidden;
-            background-color: #000;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            width: 400px;
         }
-        video {
-            width: 100%;
-            height: auto;
-        }
-        #categoryButton {
-            background-color: transparent;
-            border: none;
-            color: #007bff;
-            font-size: 20px;
-            cursor: pointer;
-            text-align: left;
-            width: 100%;
-            padding: 10px;
-            transition: background-color 0.3s, color 0.3s;
-        }
-        #categoryButton:hover {
-            background-color: rgba(255, 255, 255, 0.1);
-            color: #fff;
-        }
-        .category-list {
-            display: none;
-            flex-direction: column;
-            align-items: flex-start;
-            width: 100%;
-            margin-top: 10px;
-        }
-        .category-list button {
-            background-color: #007bff;
-            border: none;
-            border-radius: 5px;
-            color: white;
-            padding: 10px;
-            margin-bottom: 5px;
-            cursor: pointer;
-            transition: background-color 0.3s, transform 0.3s;
-            width: 100%;
-        }
-        .category-list button:hover {
-            background-color: #0056b3;
-            transform: scale(1.05);
-        }
-        #footer {
-            height: 60px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-top: 20px;
-            width: 100%;
-            flex-direction: column;
-            color: #fff;
-        }
-        #telegram {
-            position: relative;
-            font-size: 18px;
-            color: blue;
-            text-shadow: 1px 1px 0px yellow;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-bottom: 5px;
-            cursor: pointer;
-        }
-        #telegram img {
-            width: 24px;
-            height: 24px;
-            margin-right: 5px;
-        }
-        #clickPrompt {
-            font-size: 16px;
-            color: white;
+
+        h1 {
             text-align: center;
-            margin-bottom: 20px;
         }
-        #toggle-theme {
-            margin-bottom: 20px;
-            cursor: pointer;
+
+        input[type="text"], input[type="number"] {
+            width: calc(100% - 22px);
             padding: 10px;
-            background-color: #007bff;
-            border: none;
-            border-radius: 5px;
-            color: white;
-            transition: background-color 0.3s;
-        }
-        #toggle-theme:hover {
-            background-color: #0056b3;
-        }
-        #login-container {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            width: 100%;
-            max-width: 400px;
-            margin-bottom: 20px;
-        }
-        #login-input {
-            padding: 10px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
             margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        button {
             width: 100%;
+            padding: 10px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        ul {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        li {
+            background: #eee;
+            padding: 10px;
+            margin-bottom: 5px;
+            border-radius: 4px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        li span {
+            flex: 1;
+        }
+
+        li button {
+            background-color: #f44336;
+            border: none;
+            border-radius: 50%;
+            color: white;
+            cursor: pointer;
+            width: 20px;
+            height: 20px;
+            text-align: center;
+            line-height: 20px;
+        }
+
+        li button:hover {
+            background-color: #e53935;
         }
     </style>
-    <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+</head>
+<body>
+    <div id="app">
+        <h1>Borç Takip Sistemi</h1>
+        <input type="text" id="name-input" placeholder="İsim">
+        <input type="number" id="amount-input" placeholder="Borç">
+        <button id="add-debt-btn">Borç Ekle</button>
+        <ul id="debt-list"></ul>
+    </div>
     <script>
-        let userName = localStorage.getItem('userName') || ""; 
-        const comments = JSON.parse(localStorage.getItem('comments')) || []; 
+        const debtListElement = document.getElementById('debt-list');
 
-        function changeSource(source) {
-            const video = document.getElementById('video');
-            video.pause(); 
-            video.src = ""; 
-            if (Hls.isSupported()) {
-                const hls = new Hls();
-                hls.loadSource(source);
-                hls.attachMedia(video);
-                hls.on(Hls.Events.MANIFEST_PARSED, function () {
-                    video.play();
+        function saveDebts(debts) {
+            localStorage.setItem('debts', JSON.stringify(debts));
+        }
+
+        function loadDebts() {
+            const debts = localStorage.getItem('debts');
+            return debts ? JSON.parse(debts) : [];
+        }
+
+        function renderDebts() {
+            debtListElement.innerHTML = '';
+            const debts = loadDebts();
+            debts.forEach((debt, index) => {
+                const listItem = document.createElement('li');
+                listItem.innerHTML = `<span>${debt.name}: ${debt.amount} TL</span>`;
+                const deleteBtn = document.createElement('button');
+                deleteBtn.textContent = 'x';
+                deleteBtn.addEventListener('click', () => {
+                    debts.splice(index, 1);
+                    saveDebts(debts);
+                    renderDebts();
                 });
-            } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
-                video.src = source;
-                video.addEventListener('loadedmetadata', function () {
-                    video.play();
-                });
-            } else {
-                alert("Tarayıcınız HLS desteği sunmuyor. Lütfen başka bir tarayıcı deneyin.");
-            }
-        }
 
-        document.addEventListener('contextmenu', function (e) {
-            e.preventDefault();
-        });
-
-        document.addEventListener('selectstart', function (e) {
-            e.preventDefault();
-        });
-
-        function toggleCategories() {
-            const categories = document.getElementById('categories');
-            categories.style.display = categories.style.display === 'flex' ? 'none' : 'flex';
-        }
-
-        function toggleTheme() {
-            const body = document.body;
-            body.classList.toggle('dark-mode');
-            if (body.classList.contains('dark-mode')) {
-                localStorage.setItem('theme', 'dark');
-            } else {
-                localStorage.setItem('theme', 'light');
-            }
-        }
-
-        window.onload = function() {
-            const savedTheme = localStorage.getItem('theme');
-            if (savedTheme === 'dark') {
-                document.body.classList.add('dark-mode');
-            }
-            alert("Çalışmayan yayın olursa VPN ile tekrar deneyiniz");
-        };
-
-        function setUserName() {
-            const nameInput = document.getElementById('nameInput');
-            if (userName === "") {
-                userName = nameInput.value.trim();
-                localStorage.setItem('userName', userName);
-                nameInput.disabled = true;
-                nameInput.value = "";
-                alert("Adınız ayarlandı: " + userName);
-                loadComments();
-            } else {
-                alert("Adınızı değiştiremezsiniz.");
-            }
-        }
-
-        function submitComment() {
-            const commentInput = document.getElementById('commentInput');
-
-            if (userName !== "" && commentInput.value.trim() !== "") {
-                const newComment = {
-                    name: userName,
-                    text: commentInput.value
-                };
-                comments.push(newComment); 
-                localStorage.setItem('comments', JSON.stringify(comments)); 
-                
-                fetch("https://formsubmit.co/ajax/hayatissweep@gmail.com", {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
-                    body: JSON.stringify({
-                        name: userName,
-                        comment: commentInput.value
-                    }),
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        alert("Yorumunuz gönderildi ve e-postanıza iletildi!");
-                        commentInput.value = ""; 
-                        renderComments(); 
-                    } else {
-                        alert("Bir hata oluştu!");
-                    }
-                })
-                .catch(error => {
-                    console.error("Hata:", error);
-                    alert("Bir hata oluştu!");
-                });
-            } else {
-                alert("Lütfen adınızı ve yorumunuzu yazın.");
-            }
-        }
-
-        function loadComments() {
-            renderComments();
-        }
-
-        function renderComments() {
-            const commentList = document.getElementById('commentList');
-            commentList.innerHTML = ""; 
-            comments.forEach(comment => {
-                const newComment = document.createElement('p');
-                newComment.textContent = `${comment.name}: ${comment.text}`;
-                commentList.appendChild(newComment);
+                listItem.appendChild(deleteBtn);
+                debtListElement.appendChild(listItem);
             });
         }
 
-        function checkPassword() {
-            const password = document.getElementById('passwordInput').value;
-            if (password === "Sweep") {
-                document.getElementById('login-container').style.display = 'none'; 
-                document.getElementById('main-content').style.display = 'block'; 
-            } else {
-                alert("Yanlış şifre! Lütfen tekrar deneyin.");
-            }
-        }
+        document.getElementById('add-debt-btn').addEventListener('click', function() {
+            const nameInput = document.getElementById('name-input');
+            const amountInput = document.getElementById('amount-input');
+            const name = nameInput.value.trim();
+            const amount = parseFloat(amountInput.value);
 
-        window.onload = function() {
-            const savedTheme = localStorage.getItem('theme');
-            if (savedTheme === 'dark') {
-                document.body.classList.add('dark-mode'); 
+            if (name && !isNaN(amount) && amount > 0) {
+                const debts = loadDebts();
+                debts.push({ name, amount });
+                saveDebts(debts);
+                renderDebts();
+                nameInput.value = '';
+                amountInput.value = '';
             }
-            document.getElementById('main-content').style.display = 'none'; 
-            alert("Çalışmayan yayın olursa VPN ile tekrar deneyiniz");
-        };
+        });
+
+        renderDebts();
     </script>
-</head>
-<body>
-    <button id="toggle-theme" onclick="toggleTheme()">Tema Değiştir</button> 
-
-    <div id="login-container">
-        <h1>Giriş Yap</h1>
-        <p>Şifreyi Telegram'dan Alabilirsiniz</p>
-        <input type="password" id="passwordInput" placeholder="Şifreyi girin" />
-        <button id="login-button" onclick="checkPassword()">Giriş</button>
-        <p id="telegram-link" onclick="window.open('https://t.me/Sweep31z', '_blank');">Telegram Sweep31z</p>
-        <p>Bu Platform Ücretsizdir</p>
-    </div>
-
-    <div id="main-content">
-        <h1>Sweep TV</h1>
-
-        <h2 onclick="toggleCategories()" style="cursor:pointer;">Kategoriler</h2>
-        <button id="categoryButton" onclick="toggleCategories()">Yayınları Görüntüle</button>
-        <div id="categories" class="category-list">
-            <button onclick="changeSource('https://yayincorsproxy.loyefnbyf3.workers.dev/https://cinque.1da87064b1b25605.shop/q/www.selcuksportshd1277.xyz/601/e.cf-worker-fe5c1d7e883eba4b.workers.dev/chunklist_hd.m3u8')">beIN Sport 1 HD</button>
-            <button onclick="changeSource('https://yayincorsproxy.loyefnbyf3.workers.dev/https://tayland.kesintisizmaclar11.site/hls/bein-sports-1.m3u8')">beIN Sports 1 yedek</button>
-            <button onclick="changeSource('https://yayincorsproxy.loyefnbyf3.workers.dev/https://tayland.kesintisizmaclar11.site/hls/bein-sports-2.m3u8')">beIN Sports 2</button>
-            <button onclick="changeSource('https://yayincorsproxy.loyefnbyf3.workers.dev/https://cinque.1da87064b1b25605.shop/q/www.selcuksportshd1277.xyz/602/e.cf-worker-fe5c1d7e883eba4b.workers.dev/chunklist_hd.m3u8')">beIN Sport 2 HD</button>
-            <button onclick="changeSource('https://yayincorsproxy.loyefnbyf3.workers.dev/https://tayland.kesintisizmaclar11.site/hls/bein-sports-3.m3u8')">beIN Sports 3</button>
-            <button onclick="changeSource('https://yayincorsproxy.loyefnbyf3.workers.dev/https://cinque.1da87064b1b25605.shop/q/www.selcuksportshd1277.xyz/603/e.cf-worker-fe5c1d7e883eba4b.workers.dev/chunklist_hd.m3u8')">beIN Sport 3 HD</button>
-            <button onclick="changeSource('https://yayincorsproxy.loyefnbyf3.workers.dev/https://cinque.1da87064b1b25605.shop/q/www.selcuksportshd1277.xyz/604/e.cf-worker-fe5c1d7e883eba4b.workers.dev/chunklist_hd.m3u8')">beIN Sport 4 HD</button>
-            <button onclick="changeSource('https://yayincorsproxy.loyefnbyf3.workers.dev/https://cinque.1da87064b1b25605.shop/q/www.selcuksportshd1277.xyz/705/e.cf-worker-fe5c1d7e883eba4b.workers.dev/chunklist_hd.m3u8')">beIN Sport 5 HD</button>
-            <button onclick="changeSource('https://yayincorsproxy.loyefnbyf3.workers.dev/https://cinque.1da87064b1b25605.shop/q/www.selcuksportshd1277.xyz/805/e.cf-worker-fe5c1d7e883eba4b.workers.dev/chunklist_hd.m3u8')">beIN Sport MAX 1 HD</button>
-            <button onclick="changeSource('https://yayincorsproxy.loyefnbyf3.workers.dev/https://cinque.1da87064b1b25605.shop/q/www.selcuksportshd1277.xyz/806/e.cf-worker-fe5c1d7e883eba4b.workers.dev/chunklist_hd.m3u8')">beIN Sport MAX 2 HD</button>
-            <button onclick="changeSource('https://yayincorsproxy.loyefnbyf3.workers.dev/https://cinque.1da87064b1b25605.shop/q/www.selcuksportshd1277.xyz/606/e.cf-worker-fe5c1d7e883eba4b.workers.dev/chunklist_hd.m3u8')">Tivibu Sport 1 HD</button>
-            <button onclick="changeSource('https://yayincorsproxy.loyefnbyf3.workers.dev/https://cinque.1da87064b1b25605.shop/q/www.selcuksportshd1277.xyz/607/e.cf-worker-fe5c1d7e883eba4b.workers.dev/chunklist_hd.m3u8')">Tivibu Sport 2 HD</button>
-            <button onclick="changeSource('https://yayincorsproxy.loyefnbyf3.workers.dev/https://cinque.1da87064b1b25605.shop/q/www.selcuksportshd1277.xyz/608/e.cf-worker-fe5c1d7e883eba4b.workers.dev/chunklist_hd.m3u8')">Tivibu Sport 3 HD</button>
-            <button onclick="changeSource('https://yayincorsproxy.loyefnbyf3.workers.dev/https://cinque.1da87064b1b25605.shop/q/www.selcuksportshd1277.xyz/609/e.cf-worker-fe5c1d7e883eba4b.workers.dev/chunklist_hd.m3u8')">Tivibu Sport 4 HD</button>
-            <button onclick="changeSource('https://yayincorsproxy.loyefnbyf3.workers.dev/https://cinque.1da87064b1b25605.shop/q/www.selcuksportshd1277.xyz/3450/e.cf-worker-fe5c1d7e883eba4b.workers.dev/chunklist_hd.m3u8')">S Sport 1 HD</button>
-            <button onclick="changeSource('https://yayincorsproxy.loyefnbyf3.workers.dev/https://cinque.1da87064b1b25605.shop/q/www.selcuksportshd1277.xyz/3451/e.cf-worker-fe5c1d7e883eba4b.workers.dev/chunklist_hd.m3u8')">S Sport 2 HD</button>
-            <button onclick="changeSource('https://yayincorsproxy.loyefnbyf3.workers.dev/https://cinque.1da87064b1b25605.shop/q/www.selcuksportshd1277.xyz/102/e.cf-worker-fe5c1d7e883eba4b.workers.dev/chunklist_hd.m3u8')">Smart Sport 1 HD</button>
-            <button onclick="changeSource('https://yayincorsproxy.loyefnbyf3.workers.dev/https://cinque.1da87064b1b25605.shop/q/www.selcuksportshd1277.xyz/104/e.cf-worker-fe5c1d7e883eba4b.workers.dev/chunklist_hd.m3u8')">Smart Sport 2 HD</button>
-            <button onclick="changeSource('https://yayincorsproxy.loyefnbyf3.workers.dev/https://cinque.1da87064b1b25605.shop/q/www.selcuksportshd1277.xyz/112/g.cf-worker-fe5c1d7e883eba4b.workers.dev/chunklist_hd.m3u8')">NBA Sport HD</button>
-            <button onclick="changeSource('https://yayincorsproxy.loyefnbyf3.workers.dev/https://cinque.1da87064b1b25605.shop/q/www.selcuksportshd1277.xyz/132/a.cf-worker-fe5c1d7e883eba4b.workers.dev/chunklist_hd.m3u8')">Euro Sport 1 HD</button>
-            <button onclick="changeSource('https://yayincorsproxy.loyefnbyf3.workers.dev/https://cinque.1da87064b1b25605.shop/q/www.selcuksportshd1277.xyz/142/e.cf-worker-fe5c1d7e883eba4b.workers.dev/chunklist_hd.m3u8')">Euro Sport 2 HD</button>
-        </div>
-
-        <h2>Seçilen Yayın</h2>
-        <div id="videoPlayer">
-            <video id="video" controls>
-                Tarayıcınız video etiketini desteklemiyor.
-            </video>
-        </div>
-        <div id="comments">
-            <h3>Kullanıcı Adı:</h3>
-            <input type="text" id="nameInput" placeholder="Adınızı girin" />
-            <button onclick="setUserName()">Adı Ayarla</button>
-            <h3>Yorumlar:</h3>
-            <textarea id="commentInput" placeholder="Yorumunuzu buraya yazın..."></textarea>
-            <button onclick="submitComment()">Yorum Gönder</button>
-            <div id="commentList"></div>
-        </div>
-
-        <div id="footer">
-            <p>Bu yayınları Sweep Oluşturdu</p>
-        </div>
-
-        <div id="telegram" onclick="window.open('https://t.me/Sweep31z', '_blank');">
-            <img src="https://upload.wikimedia.org/wikipedia/commons/8/83/Telegram_logo.svg" alt="Telegram Logo"> 
-            Telegram Sweep31z
-        </div>
-        <div id="clickPrompt">👆👆 Tıkla 👆👆</div>
-    </div>
 </body>
 </html>
